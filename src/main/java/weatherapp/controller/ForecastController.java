@@ -28,4 +28,13 @@ public class ForecastController {
 
         return forecastService.getCurrentForecast(city, language, units);
     }
+
+    @GetMapping("/future/forecast")
+    public FutureForecast getForecastForDays(@RequestParam String city, @RequestParam(required = false) String language,
+                                             @RequestParam(required = false) String units,
+                                             @RequestParam(required = false) Integer numberOfDaysAhead)
+            throws UnirestException, IOException {
+
+        return forecastService.getForecastForDaysAhead(city, language, units, numberOfDaysAhead);
+    }
 }
