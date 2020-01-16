@@ -23,8 +23,7 @@ public class ForecastController {
 
     @GetMapping("/forecast")
     public CurrentForecast getCurrentWeather(@RequestParam String city, @RequestParam(required = false) String language,
-                                             @RequestParam(required = false) String units)
-            throws UnirestException, IOException {
+                                             @RequestParam(required = false) String units) {
 
         return forecastService.getCurrentForecast(city, language, units);
     }
@@ -32,8 +31,7 @@ public class ForecastController {
     @GetMapping("/future/forecast")
     public FutureForecast getForecastForDays(@RequestParam String city, @RequestParam(required = false) String language,
                                              @RequestParam(required = false) String units,
-                                             @RequestParam(required = false) Integer numberOfDaysAhead)
-            throws UnirestException, IOException {
+                                             @RequestParam(required = false) Integer numberOfDaysAhead) {
 
         return forecastService.getForecastForDaysAhead(city, language, units, numberOfDaysAhead);
     }

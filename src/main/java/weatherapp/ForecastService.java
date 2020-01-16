@@ -28,18 +28,21 @@ public class ForecastService {
         private static final String LANGUAGE_QUERY = "lang";
         private Map<String, Object> queryMap = new LinkedHashMap<>();
 
-        public CurrentForecast getCurrentForecast(String city, String language, String units) throws UnirestException, IOException {
+        public CurrentForecast getCurrentForecast(String city, String language, String units) {
                 HttpResponse<JsonNode> response = getJsonResponseFromUrl(city, language, units, null,
                         CURRENT_FORECAST_HOST);
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                return objectMapper.readValue(response.getBody().toString(), CurrentForecast.class);
 
+                try {
+                        return objectMapper.readValue(response.getBody().toString(), CurrentForecast.class);
+                } catch (IOException e) {
+                        throw new IllegalArgumentException("Cannot map " + response.getBody().toString() + " to CurrentForecast class due to " + e.getMessage());
+                }
         }
 
-        public FutureForecast getForecastForDaysAhead(String city, String language, String units, Integer numberOfDaysAhead)
-                throws UnirestException, IOException {
+        public FutureForecast getForecastForDaysAhead(String city, String language, String units, Integer numberOfDaysAhead) {
                 HttpResponse<JsonNode> response = getJsonResponseFromUrl(city, language, units, numberOfDaysAhead,
                         FORECAST_FOR_DAYS_AHEAD_HOST);
 
@@ -47,19 +50,26 @@ public class ForecastService {
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
-                return objectMapper.readValue(response.getBody().toString(), FutureForecast.class);
+                try {
+                        return objectMapper.readValue(response.getBody().toString(), FutureForecast.class);
+                } catch (IOException e) {
+                        throw new IllegalArgumentException("Cannot map " + response.getBody().toString() + " to FutureForecast class due to " + e.getMessage());
+                }
         }
 
-        private HttpResponse<JsonNode> getJsonResponseFromUrl(String city, String language, String units, Integer numberOfDaysForFutureForecast, String hostUrl)
-                throws UnirestException {
+        private HttpResponse<JsonNode> getJsonResponseFromUrl(String city, String language, String units, Integer numberOfDaysForFutureForecast, String hostUrl) {
 
                 initQueryMap(city, language, units, numberOfDaysForFutureForecast);
                 String query = getQueryAccordingToPresentParameters();
 
-                return Unirest.get(hostUrl + "?" + query)
-                        .header("x-rapidapi-host", X_RAPID_HOST)
-                        .header("x-rapidapi-key", X_RAPID_API_KEY)
-                        .asJson();
+                try {
+                        return Unirest.get(hostUrl + "?" + query)
+                                .header("x-rapidapi-host", X_RAPID_HOST)
+                                .header("x-rapidapi-key", X_RAPID_API_KEY)
+                                .asJson();
+                } catch (UnirestException e) {
+                        throw new IllegalArgumentException("Cannot get to" + hostUrl + "?" + query + " due to " + e.getMessage());
+                }
         }
 
         private void initQueryMap(String city, String language, String units, Integer numberOfDaysAhead) {

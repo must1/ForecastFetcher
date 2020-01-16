@@ -12,9 +12,14 @@ import java.util.concurrent.TimeUnit;
 public class UnixTimestampDeserializer extends JsonDeserializer<Instant> {
 
     @Override
-    public Instant deserialize(JsonParser parser, DeserializationContext context)
-            throws IOException {
-        String unixTimestamp = parser.getText().trim();
+    public Instant deserialize(JsonParser parser, DeserializationContext context) {
+        String unixTimestamp;
+        try {
+            unixTimestamp = parser.getText().trim();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Cannot access textual representation of the current token in " +
+                    "UnixTimestampDeserializer due to " + e.getMessage());
+        }
 
         return Instant.ofEpochMilli(
                 new Date(TimeUnit.SECONDS.toMillis(Long.valueOf(unixTimestamp)))
